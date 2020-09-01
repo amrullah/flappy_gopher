@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
+	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
-	"github.com/veandco/go-sdl2/img"
 )
 
 func main() {
@@ -43,7 +43,7 @@ func run() error {
 		return fmt.Errorf("Could not draw title: %v", err)
 	}
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(1 * time.Second)
 
 	s, err := newScene(r)
 	if err != nil {
@@ -57,6 +57,18 @@ func run() error {
 	}
 
 	time.Sleep(5 * time.Second)
+
+	running := true
+	for running {
+		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+			switch event.(type) {
+			case *sdl.QuitEvent:
+				fmt.Println("Quit")
+				running = false
+				break
+			}
+		}
+	}
 
 	return nil
 }
