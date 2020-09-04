@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -51,6 +52,16 @@ func run() error {
 	}
 	defer s.destroy()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	select {
+	case err := <-s.run(ctx, r):
+		return err
+	case <-time.After(5 * time.Second):
+		return nil
+	}
+
 	err = s.paint(r)
 	if err != nil {
 		return fmt.Errorf("Could not paint Scene: %v", err)
@@ -58,17 +69,17 @@ func run() error {
 
 	time.Sleep(5 * time.Second)
 
-	running := true
-	for running {
-		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch event.(type) {
-			case *sdl.QuitEvent:
-				fmt.Println("Quit")
-				running = false
-				break
-			}
-		}
-	}
+	// running := true
+	// for running {
+	// 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+	// 		switch event.(type) {
+	// 		case *sdl.QuitEvent:
+	// 			fmt.Println("Quit")
+	// 			running = false
+	// 			break
+	// 		}
+	// 	}
+	// }
 
 	return nil
 }
