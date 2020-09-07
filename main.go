@@ -1,9 +1,9 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/veandco/go-sdl2/img"
@@ -52,22 +52,36 @@ func run() error {
 	}
 	defer s.destroy()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	// ctx, cancel := context.WithCancel(context.Background())
+	// defer cancel()
+	// time.AfterFunc(5 * time.Second, cancel)
 
-	select {
-	case err := <-s.run(ctx, r):
-		return err
-	case <-time.After(5 * time.Second):
-		return nil
+	events := make(chan sdl.Event)
+	errc := s.run(events, r)
+
+	runtime.LockOSThread()
+	for {
+		select {
+		case events <- sdl.WaitEvent():
+		case err := <-errc:
+			return err
+		}
+
 	}
 
-	err = s.paint(r)
-	if err != nil {
-		return fmt.Errorf("Could not paint Scene: %v", err)
-	}
+	// select {
+	// case err := <-s.run(ctx, r):
+	// 	return err
+	// case <-time.After(5 * time.Second):
+	// 	return nil
+	// }
 
-	time.Sleep(5 * time.Second)
+	// err = s.paint(r)
+	// if err != nil {
+	// 	return fmt.Errorf("Could not paint Scene: %v", err)
+	// }
+
+	// time.Sleep(5 * time.Second)
 
 	// running := true
 	// for running {
@@ -81,7 +95,7 @@ func run() error {
 	// 	}
 	// }
 
-	return nil
+	// return nil
 }
 
 func drawBackground(r *sdl.Renderer) error {
