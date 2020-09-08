@@ -7,7 +7,10 @@ import (
 	"fmt"
 )
 
-const gravity = 0.25
+const (
+	gravity   = 1.0
+	jumpSpeed = 10
+)
 
 type Bird struct {
 	textures []*sdl.Texture // 4 different frames to show, to give illusion of wing flapping
@@ -36,11 +39,16 @@ func (b *Bird) paint(r *sdl.Renderer) error {
 	return nil
 }
 
+func (b *Bird) jump() {
+	b.speed = -jumpSpeed
+}
+
 func (b *Bird) destroy() {
 	for _, texture := range b.textures {
 		texture.Destroy()
 	}
 }
+
 func newBird(r *sdl.Renderer) (*Bird, error) {
 	var textures []*sdl.Texture
 
