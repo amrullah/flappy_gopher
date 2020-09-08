@@ -58,6 +58,10 @@ func (s *scene) paint(r *sdl.Renderer) error {
 		return fmt.Errorf("Could not copy background: %v", err)
 	}
 
+	if err := s.bird.paint(r); err != nil {
+		return err
+	}
+
 	r.Present()
 	return nil
 }

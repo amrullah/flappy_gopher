@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-const gravity = 0.2
+const gravity = 0.25
 
 type Bird struct {
 	textures []*sdl.Texture // 4 different frames to show, to give illusion of wing flapping
