@@ -1,5 +1,5 @@
 # Flappy Gopher
-A simple game written in `Go` using `go-sdl2` library, following the tutorials of ![Francesc Campoy](https://github.com/campoy "Francesc Campoy").
+A simple game written in `Go` using `go-sdl2` library, following the tutorials of [Francesc Campoy](https://github.com/campoy).
 
 
 ## Video
