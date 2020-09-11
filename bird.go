@@ -80,6 +80,7 @@ func (b *Bird) isDead() bool {
 
 	return b.dead
 }
+
 func newBird(r *sdl.Renderer) (*Bird, error) {
 	var textures []*sdl.Texture
 
