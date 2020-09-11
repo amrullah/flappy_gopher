@@ -13,7 +13,7 @@ type scene struct {
 	time int
 	bg   *sdl.Texture
 	bird *Bird
-	pipe *Pipe
+	pipes *Pipes
 }
 
 func (s *scene) run(events <-chan sdl.Event, r *sdl.Renderer) <-chan error {
@@ -21,8 +21,8 @@ func (s *scene) run(events <-chan sdl.Event, r *sdl.Renderer) <-chan error {
 	go func() {
 		defer close(errc)
 		tick := time.Tick(100 * time.Millisecond)
-		done := false
-		for !done {
+
+		for {
 			select {
 			case e := <-events:
 				if done := s.handleEvent(e); done {
@@ -47,7 +47,7 @@ func (s *scene) run(events <-chan sdl.Event, r *sdl.Renderer) <-chan error {
 
 func (s *scene) restart() {
 	s.bird.restart()
-	s.pipe.restart()
+	s.pipes.restart()
 }
 func (s *scene) handleEvent(event sdl.Event) bool {
 	switch event.(type) {
@@ -64,11 +64,11 @@ func (s *scene) handleEvent(event sdl.Event) bool {
 
 func (s *scene) update() {
 	s.bird.update()
-	s.pipe.update()
+	s.pipes.update()
+	s.pipes.touch(s.bird)
+	// s.bird.touch(s.pipe)
 }
 func (s *scene) paint(r *sdl.Renderer) error {
-	s.time++
-
 	r.Clear()
 
 	err := r.Copy(s.bg, nil, nil)
@@ -80,7 +80,7 @@ func (s *scene) paint(r *sdl.Renderer) error {
 		return err
 	}
 
-	if err := s.pipe.paint(r); err != nil {
+	if err := s.pipes.paint(r); err != nil {
 		return err
 	}
 
@@ -91,7 +91,7 @@ func (s *scene) paint(r *sdl.Renderer) error {
 func (s *scene) destroy() {
 	s.bg.Destroy()
 	s.bird.destroy()
-	s.pipe.destroy()
+	s.pipes.destroy()
 }
 func newScene(r *sdl.Renderer) (*scene, error) {
 	texture, err := img.LoadTexture(r, "res/images/background.png")
@@ -103,9 +103,9 @@ func newScene(r *sdl.Renderer) (*scene, error) {
 	if err != nil {
 		return nil, err
 	}
-	pipe, err := newPipe(r)
+	pipes, err := newPipes(r)
 	if err != nil {
 		return nil, err
 	}
-	return &scene{bg: texture, bird: bird, pipe: pipe}, nil
+	return &scene{bg: texture, bird: bird, pipes: pipes}, nil
 }

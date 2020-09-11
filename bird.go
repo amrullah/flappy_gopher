@@ -19,7 +19,10 @@ type Bird struct {
 	textures []*sdl.Texture // 4 different frames to show, to give illusion of wing flapping
 	time     int
 	dead     bool
-	y, speed float64
+
+	x, y  int32
+	w, h  int32
+	speed float64
 }
 
 func (b *Bird) update() {
@@ -27,11 +30,9 @@ func (b *Bird) update() {
 	defer b.mu.Unlock()
 
 	b.time++
-	b.y -= b.speed
+	b.y -= int32(b.speed)
 	if b.y < 0 {
 		b.dead = true
-		// b.speed = -b.speed
-		// b.y = 0
 	}
 	b.speed += gravity
 }
@@ -39,7 +40,7 @@ func (b *Bird) update() {
 func (b *Bird) paint(r *sdl.Renderer) error {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
-	rect := &sdl.Rect{X: 10, Y: (600 - int32(b.y)), W: 50, H: 43}
+	rect := &sdl.Rect{X: 10, Y: (600 - b.y), W: b.w, H: b.h}
 
 	birdToShow := b.time % len(b.textures)
 	err := r.Copy(b.textures[birdToShow], nil, rect)
@@ -81,6 +82,25 @@ func (b *Bird) isDead() bool {
 	return b.dead
 }
 
+func (b *Bird) touch(p *Pipe) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	if p.x > b.x+b.w { // too far right
+		return
+	}
+	if p.x+p.w < b.x { // too far left
+		return
+	}
+	if !p.inverted && p.h < b.y-b.h/2 { // pipe below the bird
+		return
+	}
+	if p.inverted && (600-p.h) > b.y+b.h/2 { // pipe above the bird
+		return
+	}
+
+	b.dead = true
+}
 func newBird(r *sdl.Renderer) (*Bird, error) {
 	var textures []*sdl.Texture
 
@@ -93,5 +113,5 @@ func newBird(r *sdl.Renderer) (*Bird, error) {
 		textures = append(textures, texture)
 	}
 
-	return &Bird{textures: textures, y: 300, speed: 0}, nil
+	return &Bird{textures: textures, x: 10, y: 300, w: 50, h: 43, speed: 0}, nil
 }

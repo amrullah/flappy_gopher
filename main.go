@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
@@ -44,17 +43,13 @@ func run() error {
 		return fmt.Errorf("Could not draw title: %v", err)
 	}
 
-	time.Sleep(11 * time.Second)
+	time.Sleep(1 * time.Second)
 
 	s, err := newScene(r)
 	if err != nil {
 		return fmt.Errorf("Could not create scene: %v", err)
 	}
 	defer s.destroy()
-
-	// ctx, cancel := context.WithCancel(context.Background())
-	// defer cancel()
-	// time.AfterFunc(5 * time.Second, cancel)
 
 	events := make(chan sdl.Event)
 	errc := s.run(events, r)
@@ -68,52 +63,24 @@ func run() error {
 		}
 
 	}
-
-	// select {
-	// case err := <-s.run(ctx, r):
-	// 	return err
-	// case <-time.After(5 * time.Second):
-	// 	return nil
-	// }
-
-	// err = s.paint(r)
-	// if err != nil {
-	// 	return fmt.Errorf("Could not paint Scene: %v", err)
-	// }
-
-	// time.Sleep(5 * time.Second)
-
-	// running := true
-	// for running {
-	// 	for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-	// 		switch event.(type) {
-	// 		case *sdl.QuitEvent:
-	// 			fmt.Println("Quit")
-	// 			running = false
-	// 			break
-	// 		}
-	// 	}
-	// }
-
-	// return nil
 }
 
-func drawBackground(r *sdl.Renderer) error {
-	r.Clear()
+// func drawBackground(r *sdl.Renderer) error {
+// 	r.Clear()
 
-	texture, err := img.LoadTexture(r, "res/images/background.png")
-	if err != nil {
-		return fmt.Errorf("Could not load background image: %v", err)
-	}
-	defer texture.Destroy()
+// 	texture, err := img.LoadTexture(r, "res/images/background.png")
+// 	if err != nil {
+// 		return fmt.Errorf("Could not load background image: %v", err)
+// 	}
+// 	defer texture.Destroy()
 
-	err = r.Copy(texture, nil, nil)
-	if err != nil {
-		return fmt.Errorf("Could not copy background: %v", err)
-	}
-	r.Present()
-	return nil
-}
+// 	err = r.Copy(texture, nil, nil)
+// 	if err != nil {
+// 		return fmt.Errorf("Could not copy background: %v", err)
+// 	}
+// 	r.Present()
+// 	return nil
+// }
 
 func drawTitle(r *sdl.Renderer, text string) error {
 	r.Clear()
@@ -123,7 +90,10 @@ func drawTitle(r *sdl.Renderer, text string) error {
 		return fmt.Errorf("Could not open font: %v", err)
 	}
 	defer font.Close()
-	surface, err := font.RenderUTF8Solid(text, sdl.Color{R: 255, G: 100, B: 0, A: 255})
+
+	color := sdl.Color{R: 255, G: 100, B: 0, A: 255}
+
+	surface, err := font.RenderUTF8Solid(text, color)
 	if err != nil {
 		return fmt.Errorf("Could not render title: %v", err)
 	}
